@@ -1,0 +1,35 @@
+h1 {
+    color: red
+}
+
+a {
+    text-decoration: none;
+    color: white;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+body {
+    font-family: 'Nanum Gothic', sans-serif;
+    margin: 0px;
+}
+.nav-banner {
+    display: flex;
+    justify-content: space-between;
+
+    background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+    url(banner.jpg);
+    height: 200px;
+    background-size: cover;
+
+    background-position: top;
+    background-repeat: no-repeat;
+    color: white;
+}
+
+.nav-banner__title {
+    font-size: 7em;  
+    position: relative; 
+}
