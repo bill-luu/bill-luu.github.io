@@ -1,0 +1,39 @@
+.calculator {  
+    margin: auto;  
+    outline-style: solid;
+    outline-color: red;
+}
+
+.button-grid {
+    display: grid;
+    grid-column-gap: 10px;
+    grid-row-gap: 15px;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr 1fr;
+}
+
+.inputs {
+    min-height: 48px;
+}
+
+.prev-input {
+    text-align: right;
+    color: gray;
+}
+
+.current-input {
+    text-align: right;
+}
+
+@media only screen and (min-width: 600px) {
+    .calculator {
+        max-width: 600px;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    .container {
+        max-width: none;
+        padding: 0px;
+    }
+}
