@@ -1,55 +1,103 @@
 <!DOCTYPE html>
-<html>
+<meta charset="utf-8">
+<style>
+    body {
+        width: 940px;
+        margin: 0 auto;
+        margin-top: 2em;
+    }
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="./styles.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-    <script src="./calculator.js"></script>
-    <title>Calculator</title>
-    <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap" rel="stylesheet">
-</head>
+    svg {
+        font: 10px sans-serif;
+    }
 
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: black;
+        shape-rendering: crispEdges;
+    }
+</style>
 <body>
-<div class="container">
-    <div class="calculator">
-        <div class="inputs">
-            <div class="prev-input" id="prev-values">
-            </div>
-            <div class="current-input" id="current-values">
-            </div>
-        </div>
-        <div class="button-grid">
-            <button id="left-parentheses">(</button>
-            <button id="right-parentheses">)</button>
-            <button id="C">C</button>
-            <button id="CE">CE</button>
-    
-            <button>7</button>
-            <button>8</button>
-            <button>9</button>
-            <button>/</button>
-    
-            <button>4</button>
-            <button>5</button>
-            <button>6</button>
-            <button>*</button>
-            
-            <button>1</button>
-            <button>2</button>
-            <button>3</button>
-            <button>-</button>
-    
-            <button>0</button>
-            <button>.</button>
-            <button id="equal">=</button>
-            <button>+</button>
-        </div>
-    </div>
-</div>
-</body>
+<script src="d3.js"></script>
+<script src="topojson.v1.min.js"></script>
+<script src="functions.js"></script>
+<script>
+    // let d3 = import(d3.js);
+    /**
+     * copied from the following resources:
+     * http://bl.ocks.org/micahstubbs/281d7b7a7e39a9b59cf80f1b8bd41a72
+     * http://bl.ocks.org/msbarry/9911363
+     * http://bl.ocks.org/weiglemc/6185069
+     *
+    **/
 
+	const margin = {top: 0, right: 0, bottom: 0, left: 0};
+	const width = 960 - margin.left - margin.right;
+	const height = 1000 - margin.top - margin.bottom;
+
+    const color = d3.scaleThreshold()
+        .domain([2, 3, 4, 5, 6, 7, 8])
+        .range( d3.schemeBlues[7] )
+        .unknown(d3.rgb(255,200,200));
+
+	const svg = d3.select('body')
+			.append('svg')
+			.attr('width', width)
+			.attr('height', height);
+
+    const map = svg
+        .append('g')
+        .attr('class', 'map');
+
+    const scatterplot = svg
+        .append('g')
+        .attr('class', 'scatterplot')
+        .attr("transform", "translate(100,550)");
+
+    const projection = d3.geoMercator()
+			.scale(130)
+			.translate( [width / 2, height / 1.5/2]);
+
+	const path = d3.geoPath().projection(projection);
+
+    Promise.all([
+        d3.csv('who.csv'),
+        d3.json('world_countries.json'),
+        d3.tsv('world_population.tsv')
+    ]).then(function(data) {
+		const fertilityById = {};
+
+        let who = data[0];
+        let countries = data[1];
+        let population = data[2];
+
+        let fieldColor = 'Total fertility rate (per woman)';
+
+        who.forEach(d => {
+            if(d[fieldColor] == '') {
+                d[fieldColor] = undefined;
+            };
+        });
+
+        population.forEach(d =>
+        {
+            var res = who.find(e =>
+            {
+                return e.Country == d.name;
+            });
+            if(typeof res !== 'undefined') {
+                res.id = d.id;
+            }
+        });
+
+        who.forEach(d => { fertilityById[d.id] = +d[fieldColor];});
+        countries.features.forEach(d => { d.population = fertilityById[d.id] });
+        console.log("Redraw")
+        drawWorldMap(svg, countries, fertilityById);
+        drawScatterPlot(scatterplot, height, fieldColor, who, countries, fertilityById);
+    });
+
+</script>
+</body>
 </html>
